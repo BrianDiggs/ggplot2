@@ -137,7 +137,7 @@ GeomDotplot <- proto(Geom, {
     if (!is.null(position) && (position == "stack" || (is.proto(position) && position$objname == "stack")))
       message("position=\"stack\" doesn't work properly with geom_dotplot. Use stackgroups=TRUE instead.")
 
-    if (params$stackgroups && params$method == "dotdensity" && params$binpositions == "bygroup")
+    if ((is.character(params$stackgroups) || params$stackgroups) && params$method == "dotdensity" && params$binpositions == "bygroup")
       message('geom_dotplot called with stackgroups=TRUE and method="dotdensity". You probably want to set binpositions="all"')
 
     do.call("layer", list(mapping = mapping, data = data, stat = stat, geom = ., position = position,
@@ -175,7 +175,9 @@ GeomDotplot <- proto(Geom, {
     # Next part will set the position of each dot within each stack
     # If stackgroups=TRUE, split only on x (or y) and panel; if not stacking, also split by group
     plyvars <- c(params$binaxis, "PANEL")
-    if (!params$stackgroups)
+    if (is.character(params$stackgroup))
+      plyvars <- c(plyvars, params$stackgroup)
+    else if (!params$stackgroups)
       plyvars <- c(plyvars, "group")
 
     # Within each x, or x+group, set countidx=1,2,3, and set stackpos according to stack function
